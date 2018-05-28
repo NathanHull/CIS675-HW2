@@ -92,7 +92,6 @@ class Lexer {
 	}
 
 	static void printToken(String token) {
-System.out.println("token: " + token);
 		if (isString) {
 			if (token.equals("\"")) {
 				isString = false;
@@ -128,15 +127,15 @@ System.out.println("token: " + token);
 				}
 
 				if (token.length() > 1) {
-
 					String partsBefore = token.substring(0, token.indexOf(c)).trim();
 					String partsAfter = token.substring(token.indexOf(c)+1).trim();
-					if (partsBefore.length() > 1) {
+
+					if (partsBefore.length() >= 1) {
 						printToken(partsBefore);
 					}
 					System.out.println(ops.get(Character.toString(c)));
 
-					if (partsAfter.length() > 1) {
+					if (partsAfter.length() >= 1) {
 						printToken(partsAfter);
 					}
 				} else {
