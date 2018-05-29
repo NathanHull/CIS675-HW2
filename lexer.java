@@ -25,6 +25,7 @@ class Lexer {
 	static HashMap<String, String> ops;
 	static boolean isComment = false;
 	static boolean isString = false;
+	static StringBuilder buildingString;
 
 	public static void main(String[] args) {
 
@@ -56,7 +57,7 @@ class Lexer {
 		ops.put("->", "ARROW");
 		ops.put(";", "SEMICOLON");
 		ops.put("=", "ASSIGNMENT");
-		ops.put("\"", "QUOTATION-MARK");
+		// ops.put("\"", "QUOTATION-MARK");
 		ops.put(",", "COMMA");
 		ops.put("/*", "COMMENT");
 
@@ -95,9 +96,9 @@ class Lexer {
 		if (isString) {
 			if (token.equals("\"")) {
 				isString = false;
-				System.out.println("END-STRING");
+				System.out.println("STRING: " + buildingString.toString());
+				return;
 			}
-			return;
 		} else if (isComment) {
 			if (token.equals("*/")) {
 				isComment = false;
@@ -108,24 +109,27 @@ class Lexer {
 
 		for (char c : token.toCharArray()) {
 
-			if (ops.containsKey(Character.toString(c))) {
-				if (token.equals("/*")) {
-					isComment = true;
-					System.out.println("COMMENT");
-					return;
+			if (isString) {
+				if (c == '\"') {
+					isString = false;
+					System.out.println("STRING: " + buildingString.toString());
+					continue;
+				} else {
+					buildingString.append(c);
 				}
-				else if (token.equals("*/")) {
-					isComment = false;
-					System.out.println("END-COMMENT");
-					return;
-				}
-				else if (token.equals("\"")) {
+			} else {
+
+				if (c == '\"') {
 					isString = !isString;
-					if (!isString)
-						System.out.println("STRING");
+					if (!isString) {
+						System.out.println("STRING: " + buildingString.toString());
+					} else {
+						buildingString = new StringBuilder();
+					}
 					return;
 				}
 
+				if (ops.containsKey(Character.toString(c))) {
 				if (token.length() > 1) {
 					String partsBefore = token.substring(0, token.indexOf(c)).trim();
 					String partsAfter = token.substring(token.indexOf(c)+1).trim();
@@ -143,6 +147,7 @@ class Lexer {
 				}
 
 				return;
+				}
 			}
 		}
 
@@ -161,8 +166,11 @@ class Lexer {
 			}
 			else if (token.equals("\"")) {
 				isString = !isString;
-				if (!isString)
-					System.out.println("STRING");
+				if (!isString) {
+					System.out.println("STRING: " + buildingString.toString());
+				} else {
+					buildingString = new StringBuilder();
+				}
 			}
 			else {
 				System.out.println(ops.get(token));
@@ -181,4 +189,4 @@ class Lexer {
 		// Otherwise, it's an ID
 		System.out.println("ID");
 	}
-}
+	}
