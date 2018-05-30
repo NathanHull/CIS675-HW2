@@ -26,6 +26,7 @@ class Lexer {
 	static boolean isComment = false;
 	static boolean isString = false;
 	static StringBuilder buildingString;
+	static boolean wasString = false;
 
 	public static void main(String[] args) {
 
@@ -57,7 +58,7 @@ class Lexer {
 		ops.put("->", "ARROW");
 		ops.put(";", "SEMICOLON");
 		ops.put("=", "ASSIGNMENT");
-		// ops.put("\"", "QUOTATION-MARK");
+		ops.put("\"", "QUOTATION-MARK");
 		ops.put(",", "COMMA");
 		ops.put("/*", "COMMENT");
 
@@ -96,7 +97,8 @@ class Lexer {
 		if (isString) {
 			if (token.equals("\"")) {
 				isString = false;
-				System.out.println("STRING: " + buildingString.toString());
+				wasString = true;
+				System.out.println("STRING0: " + buildingString.toString());
 				return;
 			}
 		} else if (isComment) {
@@ -110,18 +112,29 @@ class Lexer {
 		for (char c : token.toCharArray()) {
 
 			if (isString) {
-				if (c == '\"') {
+
+				if (wasString) {
 					isString = false;
+					wasString = false;
+				} else if (c == '\"') {
+					isString = false;
+					wasString = true;
 					System.out.println("STRING: " + buildingString.toString());
 					continue;
 				} else {
 					buildingString.append(c);
 				}
+
 			} else {
 
 				if (c == '\"') {
 					isString = !isString;
-					if (!isString) {
+
+					if (wasString) {
+						isString = false;
+						wasString = false;
+					} else if (!isString) {
+						wasString = true;
 						System.out.println("STRING: " + buildingString.toString());
 					} else {
 						buildingString = new StringBuilder();
@@ -152,7 +165,7 @@ class Lexer {
 		}
 
 		if (keywords.contains(token)) {
-			System.out.println(token.toUpperCase());
+			System.out.println("KEYWORD");
 			return;
 		} else if (ops.containsKey(token)) {
 
@@ -167,6 +180,7 @@ class Lexer {
 			else if (token.equals("\"")) {
 				isString = !isString;
 				if (!isString) {
+					wasString = true;
 					System.out.println("STRING: " + buildingString.toString());
 				} else {
 					buildingString = new StringBuilder();
